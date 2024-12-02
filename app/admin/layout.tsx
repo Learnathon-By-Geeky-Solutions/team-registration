@@ -1,16 +1,12 @@
-import { AdminNav } from '@/components/admin-nav';
+import { getServerSession } from 'next-auth'
+import ClientAdminLayout from './ClientAdminLayout'
 
 export default async function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <AdminNav />
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {children}
-      </main>
-    </div>
-  );
+  const session = await getServerSession()
+
+  return <ClientAdminLayout session={session}>{children}</ClientAdminLayout>
 }

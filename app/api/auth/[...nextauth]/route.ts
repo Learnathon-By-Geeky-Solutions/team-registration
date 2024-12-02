@@ -2,7 +2,6 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { sql } from "@/lib/db";
 import { compare } from "bcryptjs";
-import { JWT } from "next-auth/jwt";
 
 // Extend the built-in session types
 declare module "next-auth" {
@@ -27,6 +26,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
     interface JWT {
         role?: string;
+        userId?: string;
     }
 }
 
@@ -45,8 +45,8 @@ const handler = NextAuth({
 
                 try {
                     const result = await sql`
-            SELECT * FROM admins WHERE email = ${credentials.email}
-          `;
+                        SELECT * FROM admins WHERE email = ${credentials.email}
+                    `;
 
                     const admin = result[0];
                     if (!admin) {
@@ -74,26 +74,32 @@ const handler = NextAuth({
             },
         }),
     ],
-    pages: {
-        signIn: "/auth/signin",
-    },
     callbacks: {
         async jwt({ token, user }) {
+            // Add user data to the token when signing in
             if (user) {
                 token.role = user.role;
+                token.userId = user.id;
             }
             return token;
         },
         async session({ session, token }) {
-            if (session?.user) {
+            // Add token data to the session
+            if (token && session.user) {
                 session.user.role = token.role;
+                session.user.id = token.userId as string;
             }
             return session;
         },
     },
+    pages: {
+        signIn: "/auth/signin",
+    },
     session: {
         strategy: "jwt",
+        maxAge: 30 * 24 * 60 * 60, // 30 days
     },
+    secret: process.env.NEXTAUTH_SECRET,
 });
 
 export { handler as GET, handler as POST };
