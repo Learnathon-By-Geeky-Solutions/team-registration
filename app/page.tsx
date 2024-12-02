@@ -1,7 +1,17 @@
+'use client'
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Home() {
+
+  const router = useRouter();
+  useEffect(()=>{
+    router.push('/register');
+  },[])
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full text-center space-y-8">
