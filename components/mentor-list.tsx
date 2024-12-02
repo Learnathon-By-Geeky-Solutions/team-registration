@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Trash2, ExternalLink, Pencil } from 'lucide-react';
+import { Trash2, ExternalLink, Pencil,Linkedin, GithubIcon } from 'lucide-react';
 import Link from 'next/link';
 
 interface Mentor {
@@ -87,7 +87,7 @@ export function MentorList({ mentors: initialMentors, onMentorDeleted }: MentorL
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800"
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    <GithubIcon className="h-4 w-4" />
                   </a>
                   {mentor.linkedin_url && (
                     <a
@@ -96,7 +96,7 @@ export function MentorList({ mentors: initialMentors, onMentorDeleted }: MentorL
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-800"
                     >
-                      <ExternalLink className="h-4 w-4" />
+                      <Linkedin className="h-4 w-4" />
                     </a>
                   )}
                 </div>
