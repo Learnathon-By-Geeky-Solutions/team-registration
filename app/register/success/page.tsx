@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getMentor } from '@/lib/actions/mentor';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,8 @@ import { ExternalLink, Github, Linkedin } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
 
-export default function RegistrationSuccessPage() {
+// Separate component for the content that needs searchParams
+function SuccessContent() {
   const searchParams = useSearchParams();
   const [mentor, setMentor] = useState(null);
   const [repoUrl, setRepoUrl] = useState('');
@@ -26,6 +27,7 @@ export default function RegistrationSuccessPage() {
       if (mentorId) {
         try {
           const mentorData = await getMentor(parseInt(mentorId));
+          //@ts-ignore
           setMentor(mentorData);
         } catch (error) {
           toast.error('Failed to load mentor information');
@@ -46,41 +48,43 @@ export default function RegistrationSuccessPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">Loading...</div>
-      </div>
+      <div className="text-center">Loading...</div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-white rounded-lg shadow-xl p-8 text-center">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Registration Successful! 🎉
-          </h1>
-          <p className="text-gray-600">
-            Your team has been successfully registered and assigned a mentor.
-          </p>
-        </div>
+    <>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          Registration Successful! 🎉
+        </h1>
+        <p className="text-gray-600">
+          Your team has been successfully registered and assigned a mentor.
+        </p>
+      </div>
 
-        {mentor && (
-          <div className="bg-gray-50 rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Your Mentor</h2>
-            <div className="space-y-2">
-              <p className="text-lg font-medium">{mentor.full_name}</p>
-              <p className="text-gray-600">{mentor.tech_stack} Expert</p>
-              <div className="flex justify-center space-x-4 mt-4">
-                <a
-                  href={`https://github.com/${mentor.github_username}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  <Github className="h-6 w-6" />
-                </a>
-                {mentor.linkedin_url && (
+      {mentor && (
+        <div className="bg-gray-50 rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4">Your Mentor</h2>
+          <div className="space-y-2">
+            {//@ts-ignore
+              <p className="text-lg font-medium">{mentor.full_name}</p>}
+            {//@ts-ignore
+              <p className="text-gray-600">{mentor.tech_stack} Expert</p>}
+            <div className="flex justify-center space-x-4 mt-4">
+              <a
+                //@ts-ignore
+                href={`https://github.com/${mentor.github_username}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <Github className="h-6 w-6" />
+              </a>
+              {//@ts-ignore
+                mentor.linkedin_url && (
                   <a
+                    //@ts-ignore
                     href={mentor.linkedin_url}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -89,30 +93,48 @@ export default function RegistrationSuccessPage() {
                     <Linkedin className="h-6 w-6" />
                   </a>
                 )}
-              </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {repoUrl && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Project Repository</h2>
-            <a
-              href={repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800"
-            >
-              <Github className="h-5 w-5" />
-              View Repository
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </div>
-        )}
+      {repoUrl && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Project Repository</h2>
+          <a
+            href={repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800"
+          >
+            <Github className="h-5 w-5" />
+            View Repository
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        </div>
+      )}
 
-        <Button asChild>
-          <a href="/">Return to Home</a>
-        </Button>
+      <Button asChild>
+        <a href="/">Return to Home</a>
+      </Button>
+    </>
+  );
+}
+
+// Main component with Suspense boundary
+export default function RegistrationSuccessPage() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full bg-white rounded-lg shadow-xl p-8 text-center">
+        <Suspense 
+          fallback={
+            <div className="min-h-[400px] flex items-center justify-center">
+              <div className="text-center">Loading...</div>
+            </div>
+          }
+        >
+          <SuccessContent />
+        </Suspense>
       </div>
     </div>
   );

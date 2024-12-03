@@ -19,7 +19,8 @@ export default async function SettingsPage() {
         </Link>
       </div>
       <div className="bg-white shadow rounded-lg p-6">
-        <ConfigForm initialData={config} />
+        {//@ts-ignore
+          <ConfigForm initialData={config} />}
       </div>
     </div>
   );

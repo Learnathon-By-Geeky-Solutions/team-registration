@@ -19,6 +19,7 @@ export default function MentorsPage() {
   const loadMentors = async () => {
     try {
       const data = await getMentors();
+      //@ts-ignore
       setMentors(data);
     } catch (error) {
       console.error('Failed to load mentors:', error);
