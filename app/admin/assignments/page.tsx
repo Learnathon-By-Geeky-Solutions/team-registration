@@ -1,15 +1,44 @@
-import { getAssignmentStatus } from '@/lib/utils/assignment';
-import { AssignmentDashboard } from '@/components/assignment-dashboard';
+'use client'
 
-export default async function AssignmentsPage() {
-  const status = await getAssignmentStatus();
+import { useEffect, useState } from 'react'
+import { AssignmentDashboard } from '@/components/assignment-dashboard'
+import { fetchAssignmentStatus } from './actions/assignments'
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Mentor Assignments</h1>
-      {
-        //@ts-ignore
-        <AssignmentDashboard initialStatus={status.success ? status.data : null} />}
-    </div>
-  );
+export default function AssignmentsClient() {
+  const [status, setStatus] = useState<any|null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<any | null>(null)
+
+  useEffect(() => {
+    async function loadAssignments() {
+      try {
+        const result = await fetchAssignmentStatus()
+        if (result.success) {
+          setStatus(result.data)
+        } else {
+          setError(result.error)
+        }
+      } catch (err) {
+        setError('Failed to load assignments')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadAssignments()
+  }, [])
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-8">Loading assignments...</div>
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-md bg-red-50 p-4">
+        <div className="text-sm text-red-700">{error}</div>
+      </div>
+    )
+  }
+
+  return <AssignmentDashboard initialStatus={status} />
 }
